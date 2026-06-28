@@ -1,0 +1,85 @@
+<h2 class="sr-only">成衣工艺单 - 可视化填表</h2>
+
+<div style="max-width: 900px; display: flex; flex-direction: column; gap: 16px;">
+
+  <div style="background: var(--color-background-primary); border-radius: var(--border-radius-lg); border: 0.5px solid var(--color-border-tertiary); padding: 1rem 1.25rem;">
+    <h3 style="font-size: 13px; font-weight: 500; margin: 0 0 12px 0; color: var(--color-text-secondary);">基础信息</h3>
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px 14px;">
+      <div><label style="font-size: 10px; color: var(--color-text-tertiary); display: block; margin-bottom: 2px;">款号</label><input id="itemNum" placeholder="如 293B09W-S" style="width:100%;box-sizing:border-box;font-size:12px;"></div>
+      <div><label style="font-size: 10px; color: var(--color-text-tertiary); display: block; margin-bottom: 2px;">需求类型</label><select id="needType" style="width:100%;box-sizing:border-box;font-size:12px;"><option value="">选</option><option>OEM</option><option>ODM</option><option>OBM</option></select></div>
+      <div><label style="font-size: 10px; color: var(--color-text-tertiary); display: block; margin-bottom: 2px;">衣服类型</label><select id="clothType" style="width:100%;box-sizing:border-box;font-size:12px;"><option value="">选</option><option>T</option><option>W</option><option>J</option><option>K</option><option>B</option><option>F</option><option>C</option><option>P</option><option>H</option><option>S</option><option>Q</option></select></div>
+      <div><label style="font-size: 10px; color: var(--color-text-tertiary); display: block; margin-bottom: 2px;">款式</label><select id="style" style="width:100%;box-sizing:border-box;font-size:12px;"><option value="">选</option><option>短袖T恤</option><option>短裤</option><option>长裤</option><option>长袖T恤</option><option>半拉链外套</option><option>连帽开衫外套</option><option>圆领卫衣</option><option>连帽卫衣</option><option>短裙</option><option>连衣裙</option><option>短袖衬衫</option><option>长袖衬衫</option><option>拉链开衫外套</option><option>背心</option><option>polo衫</option><option>包包</option><option>套头卫衣</option><option>开衫卫衣</option><option>半拉链卫衣</option></select></div>
+      <div><label style="font-size: 10px; color: var(--color-text-tertiary); display: block; margin-bottom: 2px;">客户名称</label><input id="customer" placeholder="输入后自动模糊匹配" style="width:100%;box-sizing:border-box;font-size:12px;"></div>
+      <div><label style="font-size: 10px; color: var(--color-text-tertiary); display: block; margin-bottom: 2px;">打版件数</label><input id="num" type="number" value="1" min="1" style="width:100%;box-sizing:border-box;font-size:12px;"></div>
+      <div><label style="font-size: 10px; color: var(--color-text-tertiary); display: block; margin-bottom: 2px;">版型</label><input id="layout" placeholder="如 宽松版" style="width:100%;box-sizing:border-box;font-size:12px;"></div>
+      <div><label style="font-size: 10px; color: var(--color-text-tertiary); display: block; margin-bottom: 2px;">烫唛（19项）</label><select id="mark" style="width:100%;box-sizing:border-box;font-size:12px;"><option value="">选</option><option>无领唛</option><option>SYNERGY烫唛</option><option>SYNERGY白织唛</option><option>SYNERGY黑织唛</option><option>四圈无商标烫唛</option><option>液氨专用烫唛</option><option>漫威龙烫唛</option><option>漫威龙织唛</option><option>CONP后领标</option><option>CIS上装烫麦</option><option>CIS下装烫麦</option><option>CCC烫唛Unisex</option><option>CCC烫唛Women's</option><option>CCC烫唛Men's</option><option>CCC帆船唛all</option><option>CCC帆船唛girls</option><option>CCC帆船唛BOYS</option><option>失物招领烫唛</option><option>失物招领白织唛</option></select></div>
+      <div><label style="font-size: 10px; color: var(--color-text-tertiary); display: block; margin-bottom: 2px;">预计完成时间</label><input id="finishTime" type="date" style="width:100%;box-sizing:border-box;font-size:12px;"></div>
+    </div>
+  </div>
+
+  <div style="background: var(--color-background-primary); border-radius: var(--border-radius-lg); border: 0.5px solid var(--color-border-tertiary); padding: 1rem 1.25rem;">
+    <h3 style="font-size: 13px; font-weight: 500; margin: 0 0 12px 0; color: var(--color-text-secondary);">工艺制作</h3>
+    <textarea id="process" placeholder="每行一条工艺，如：三针五线大哈苏" rows="8" style="width:100%;box-sizing:border-box;resize:vertical;font-size:12px;min-height:120px;"></textarea>
+  </div>
+
+  <div style="background: var(--color-background-primary); border-radius: var(--border-radius-lg); border: 0.5px solid var(--color-border-tertiary); padding: 1rem 1.25rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+      <h3 style="font-size: 13px; font-weight: 500; margin: 0; color: var(--color-text-secondary);">SKU 与面料</h3>
+      <button onclick="addSku()" style="font-size: 12px; padding: 4px 12px;">+ 添加 SKU</button>
+    </div>
+    <div id="skuContainer" style="display: flex; flex-direction: column; gap: 10px;"></div>
+  </div>
+
+  <div style="background: var(--color-background-primary); border-radius: var(--border-radius-lg); border: 0.5px solid var(--color-border-tertiary); padding: 1rem 1.25rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+      <h3 style="font-size: 13px; font-weight: 500; margin: 0; color: var(--color-text-secondary);">辅料信息</h3>
+      <button onclick="addAux()" style="font-size: 12px; padding: 4px 12px;">+ 添加辅料</button>
+    </div>
+    <div id="auxContainer" style="display: flex; flex-direction: column; gap: 8px;">
+      <div id="auxEmpty" style="font-size: 12px; color: var(--color-text-tertiary); padding: 8px 0;">暂无辅料，点击上方按钮添加</div>
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 10px; justify-content: flex-end;">
+    <button onclick="resetAll()">重置</button>
+    <button id="submitBtn" style="background: var(--color-background-info); color: var(--color-text-info); border-color: var(--color-border-info);">提交填表数据</button>
+  </div>
+
+</div>
+
+<script>
+var skuCounter=1,fl='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+function makeSkuBlock(n){
+  var d=document.createElement('div');d.className='sku-block';
+  d.style.cssText='border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px;background:var(--color-background-secondary);';
+  d.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-size:12px;font-weight:500;color:var(--color-text-secondary);">SKU '+n+'</span><button class="delSku" onclick="delSku(this)" style="font-size:11px;padding:2px 8px;color:var(--color-text-danger);border-color:var(--color-border-danger);">删除SKU</button></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;align-items:end;margin-bottom:10px;"><div><label style="font-size:10px;color:var(--color-text-tertiary);">颜色</label><input class="scolor" placeholder="黑" style="width:100%;box-sizing:border-box;font-size:11px;"></div><div><label style="font-size:10px;color:var(--color-text-tertiary);">尺码</label><input class="ssize" placeholder="M" style="width:100%;box-sizing:border-box;font-size:11px;"></div><div><label style="font-size:10px;color:var(--color-text-tertiary);">件数</label><input class="sqty" type="number" value="1" min="1" style="width:100%;box-sizing:border-box;font-size:11px;"></div><div style="display:flex;justify-content:flex-end;align-items:flex-end;"><button onclick="addFabric(this)" style="font-size:10px;padding:2px 8px;">+ 面料</button></div></div><div class="fabrics" style="display:flex;flex-direction:column;gap:6px;"></div>';
+  return d;
+}
+function makeFabricRow(label){
+  var d=document.createElement('div');d.className='fab-row';
+  d.style.cssText='border:0.5px solid var(--color-border-tertiary);border-radius:4px;padding:6px 8px;position:relative;';
+  d.innerHTML='<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;"><span class="flabel" style="font-size:12px;font-weight:500;color:var(--color-text-info);min-width:18px;">'+label+'</span><span style="font-size:10px;color:var(--color-text-tertiary);">面</span><input placeholder="面料编号" style="flex:1;min-width:80px;box-sizing:border-box;font-size:11px;"><span style="font-size:10px;color:var(--color-text-tertiary);">色号</span><input placeholder="色号" style="flex:1;min-width:72px;box-sizing:border-box;font-size:11px;"><span style="font-size:10px;color:var(--color-text-tertiary);">颜色</span><input placeholder="颜色名" style="flex:1;min-width:72px;box-sizing:border-box;font-size:11px;"><span style="font-size:10px;color:var(--color-text-tertiary);white-space:nowrap;">罗纹</span><select class="ribsel" style="width:52px;box-sizing:border-box;font-size:11px;"><option>否</option><option>是</option></select><span style="font-size:10px;color:var(--color-text-tertiary);">幅宽</span><input placeholder="幅宽" style="width:64px;box-sizing:border-box;font-size:11px;"><span style="font-size:10px;color:var(--color-text-tertiary);">克重</span><input placeholder="克重" style="width:60px;box-sizing:border-box;font-size:11px;"><button onclick="delFabric(this)" style="font-size:10px;padding:0 5px;color:var(--color-text-danger);border-color:var(--color-border-danger);">X</button></div><div style="display:flex;align-items:center;gap:6px;"><div style="min-width:18px;"></div><span style="font-size:10px;color:var(--color-text-tertiary);">供</span><input placeholder="供应商" style="flex:1;min-width:80px;box-sizing:border-box;font-size:11px;"><span style="font-size:10px;color:var(--color-text-tertiary);">成分</span><input placeholder="成分" style="flex:1;min-width:90px;box-sizing:border-box;font-size:11px;"><span style="font-size:10px;color:var(--color-text-tertiary);">品名</span><input placeholder="品名" style="flex:1;min-width:72px;box-sizing:border-box;font-size:11px;"><span style="font-size:10px;color:var(--color-text-tertiary);white-space:nowrap;">米长</span><input placeholder="米长" style="width:52px;box-sizing:border-box;font-size:11px;"><span style="font-size:10px;color:var(--color-text-tertiary);">金额</span><input placeholder="金额" style="width:60px;box-sizing:border-box;font-size:11px;"><span style="font-size:10px;color:var(--color-text-tertiary);">采购人</span><input placeholder="采购人" style="width:64px;box-sizing:border-box;font-size:11px;"><span style="font-size:10px;color:var(--color-text-tertiary);white-space:nowrap;">到货</span><input placeholder="到货时间" style="width:72px;box-sizing:border-box;font-size:11px;"></div>';
+  return d;
+}
+function addSku(){skuCounter++;var b=makeSkuBlock(skuCounter);b.querySelector('.fabrics').appendChild(makeFabricRow('A'));document.getElementById('skuContainer').appendChild(b);}
+function delSku(btn){var c=document.getElementById('skuContainer');if(c.querySelectorAll('.sku-block').length<=1)return;btn.closest('.sku-block').remove();}
+function addFabric(btn){var l=btn.closest('.sku-block').querySelector('.fabrics');var i=l.querySelectorAll('.fab-row').length;l.appendChild(makeFabricRow(fl[i]));}
+function delFabric(btn){var l=btn.closest('.fabrics');if(l.querySelectorAll('.fab-row').length<=1)return;btn.closest('.fab-row').remove();l.querySelectorAll('.fab-row').forEach(function(r,i){r.querySelector('.flabel').textContent=fl[i];});}
+function addAux(){
+  var c=document.getElementById('auxContainer'),e=document.getElementById('auxEmpty');if(e)e.remove();
+  var i=c.querySelectorAll('.aux-row').length+1, r=document.createElement('div');r.className='aux-row';
+  r.style.cssText='border:0.5px solid var(--color-border-tertiary);border-radius:4px;padding:6px 8px;position:relative;';
+  r.innerHTML='<div style="display:flex;align-items:center;gap:6px;"><span style="font-size:11px;font-weight:500;color:var(--color-text-secondary);min-width:16px;">'+i+'</span><input placeholder="辅料名称" style="flex:1;min-width:80px;box-sizing:border-box;font-size:11px;"><input placeholder="规格" style="flex:1;min-width:64px;box-sizing:border-box;font-size:11px;"><input placeholder="颜色" style="flex:1;min-width:52px;box-sizing:border-box;font-size:11px;"><input placeholder="用量" style="width:48px;box-sizing:border-box;font-size:11px;"><input placeholder="单位" style="width:42px;box-sizing:border-box;font-size:11px;"><input placeholder="单价" style="width:52px;box-sizing:border-box;font-size:11px;"><input placeholder="供应商" style="flex:1;min-width:64px;box-sizing:border-box;font-size:11px;"><input placeholder="电话" style="width:72px;box-sizing:border-box;font-size:11px;"><input placeholder="采购量" style="width:52px;box-sizing:border-box;font-size:11px;"><input placeholder="采购人" style="width:56px;box-sizing:border-box;font-size:11px;"><input placeholder="到货" style="width:60px;box-sizing:border-box;font-size:11px;"><button onclick="delAux(this)" style="font-size:10px;padding:0 5px;color:var(--color-text-danger);border-color:var(--color-border-danger);">X</button></div>';
+  c.appendChild(r);
+}
+function delAux(btn){var c=document.getElementById('auxContainer');btn.closest('.aux-row').remove();var rs=c.querySelectorAll('.aux-row');if(rs.length===0){c.innerHTML='<div id="auxEmpty" style="font-size:12px;color:var(--color-text-tertiary);padding:8px 0;">暂无辅料</div>';}else{rs.forEach(function(r,i){r.querySelector('span').textContent=i+1;});}}
+function gatherFabric(r){var ins=r.querySelectorAll('input'),sel=r.querySelector('.ribsel');return{clothType:r.querySelector('.flabel').textContent,productNo:ins[0].value,color:ins[1].value,colorName:ins[2].value,isRib:sel?sel.value:'否',width:ins[3].value,weight:ins[4].value,supplier:ins[5].value,component:ins[6].value,productName:ins[7].value,meterLen:ins[8].value,meterPrice:ins[9].value,buyer:ins[10].value,arriveTime:ins[11].value};}
+document.getElementById('submitBtn').addEventListener('click',function(){
+  var d={itemNum:document.getElementById('itemNum').value,needType:document.getElementById('needType').value,clothType:document.getElementById('clothType').value,style:document.getElementById('style').value,customer:document.getElementById('customer').value,num:document.getElementById('num').value,layout:document.getElementById('layout').value,mark:document.getElementById('mark').value,finishTime:document.getElementById('finishTime').value,process:document.getElementById('process').value,skus:[],auxiliaries:[]};
+  document.querySelectorAll('.sku-block').forEach(function(b){var s={skuNo:b.querySelector('span').textContent.replace('SKU ',''),color:b.querySelector('.scolor').value,size:b.querySelector('.ssize').value,qty:b.querySelector('.sqty').value,fabrics:[]};b.querySelectorAll('.fab-row').forEach(function(r){var fd=gatherFabric(r);if(fd.productNo.trim())s.fabrics.push(fd);});d.skus.push(s);});
+  document.querySelectorAll('.aux-row').forEach(function(r){var ins=r.querySelectorAll('input');if(ins[0].value.trim())d.auxiliaries.push({name:ins[0].value,spec:ins[1].value,color:ins[2].value,usage:ins[3].value,unit:ins[4].value,price:ins[5].value,supplier:ins[6].value,phone:ins[7].value,buyQty:ins[8].value,buyer:ins[9].value,arriveTime:ins[10].value});});
+  sendPrompt('填表数据:'+JSON.stringify(d,null,2));
+});
+function resetAll(){document.querySelectorAll('input:not([type="number"])').forEach(function(el){el.value='';});document.querySelectorAll('select').forEach(function(el){el.selectedIndex=0;});document.getElementById('process').value='';document.getElementById('num').value='1';skuCounter=1;document.getElementById('skuContainer').innerHTML='';var f=makeSkuBlock(1);f.querySelector('.fabrics').appendChild(makeFabricRow('A'));document.getElementById('skuContainer').appendChild(f);document.getElementById('auxContainer').innerHTML='<div id="auxEmpty" style="font-size:12px;color:var(--color-text-tertiary);padding:8px 0;">暂无辅料，点击上方按钮添加</div>';}
+var fs=makeSkuBlock(1);fs.querySelector('.fabrics').appendChild(makeFabricRow('A'));document.getElementById('skuContainer').appendChild(fs);
+</script>

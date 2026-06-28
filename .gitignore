@@ -1,0 +1,31 @@
+# Identity & credentials
+.identity.json
+.env
+config/.env
+
+# Python
+__pycache__/
+*.pyc
+
+# System
+.DS_Store
+Thumbs.db
+batch_results.json
+test_upload.py
+
+# Excel templates (company IP)
+成衣设计系统_标准化模板.xlsx
+config/成衣工艺单_设计师填表模板_v5.xlsx
+skill/config/成衣工艺单_设计师填表模板_v5.xlsx
+
+# Dev artifacts (Playwright captures, test data, screenshots)
+network_analysis.json
+form_structure.json
+src/test_data.json
+config/temp_data.json
+test_craft.jpg
+survey_*.html
+screenshots/
+
+# Node modules (not tracked, install locally)
+scripts/node_modules/
