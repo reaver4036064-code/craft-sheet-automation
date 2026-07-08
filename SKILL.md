@@ -211,11 +211,42 @@ Agent 读取设计师提供的 Excel 文件，逐区检查：
 | `grem` | 克重 | `"340G（回后）"` |
 | `thread` | 螺纹标记 | `"0"` 否 / `"1"` 是 |
 | `sort` | 排序 | `1, 2, 3...` |
+| `type` | 面料类型（[NEW]） | `""` |
+| `colorTypeVOS` | 颜色列表（[NEW]） | `[{"color":"5665-2","colorName":"活性黑"}]` |
 
 ### SKU 字段
 
 - `sku` / `skuName`：保持独立标识（如 `"SKU1"`），**禁止填入面料编号**
 - SKU 行颜色：需单独询问设计师（不自动从面料取）
+
+### works 工艺字段（2026-07 更新）
+
+| 字段 | 说明 | 示例 |
+|------|------|------|
+| `cate` | 工艺类型：`"0"`=工艺制作，`"2"`=成衣工艺 | `"0"` |
+| `status` | 固定 `"0"` | `"0"` |
+| `name` | 工艺名称 | `"三针五线大哈苏"` |
+| `sort` | 排序号 | `0, 1, 2...` |
+| `factoryName` | **[NEW]** 制衣厂 | `"制衣厂"` |
+| `unitPrice` | **[NEW]** 单价 | `2.13` |
+
+### 新增顶层字段（2026-07 更新）
+
+| 字段 | 说明 |
+|------|------|
+| `customerLogo` | 客户 Logo，默认留空 |
+| `outProcess` | 外发工艺 |
+| `postProcess` | 后道工艺 |
+| `sewingProcess` | 车缝工艺 |
+| `patternBy` / `cutBy` / `sewingBy` | 纸样/裁剪/车缝负责人 |
+| `patternTime` / `cutTime` / `sewingTime` | 各阶段完成时间 |
+| `status` | 固定 `0` |
+
+### 辅料 auxiliaries 更新
+
+| 新增字段 | 说明 |
+|------|------|
+| `supListVOS` | **[NEW]** 供应商列表对象，含 `supNo`/`supName`/`price` |
 
 ### 其他
 

@@ -62,6 +62,11 @@ def map_excel_to_api_payload(
             "price": 0,
             "clothType": f.get("code", "A"),
             "cgBy": cg_by,
+            "type": "",                                         # [NEW] 面料类型
+            "colorTypeVOS": [{                                  # [NEW] 颜色列表
+                "color": f.get("color", ""),
+                "colorName": f.get("color", ""),
+            }],
         })
 
     if all_fabrics:
@@ -84,7 +89,7 @@ def map_excel_to_api_payload(
                 "productNo": "", "color": "", "colorName": "",
                 "buffon": "", "grem": "", "supName": "",
                 "productName": "", "price": 0, "clothType": "A",
-                "cgBy": cg_by,
+                "cgBy": cg_by, "type": "", "colorTypeVOS": [],
             }],
         })
 
@@ -111,10 +116,12 @@ def map_excel_to_api_payload(
                 lines.append(line)
         for i, name in enumerate(lines):
             works.append({
-                "cate": "0",        # ★ 统一：工艺制作
+                "cate": "0",           # 0=工艺制作, 2=成衣工艺
                 "status": "0",
                 "name": name,
                 "sort": i,
+                "factoryName": "",     # [NEW] 制衣厂
+                "unitPrice": 0,        # [NEW] 单价
             })
 
     # ★ 车缝工艺 → 也合并到工艺制作 (cate=0)
@@ -125,6 +132,8 @@ def map_excel_to_api_payload(
             "status": "0",
             "name": sewing_val,
             "sort": len(works),
+            "factoryName": "",
+            "unitPrice": 0,
         })
 
     # ★ 成衣工艺 → 也合并到工艺制作 (cate=0)
@@ -135,6 +144,8 @@ def map_excel_to_api_payload(
             "status": "0",
             "name": garment_val,
             "sort": len(works),
+            "factoryName": "",
+            "unitPrice": 0,
         })
 
     # --- 辅料信息 auxiliaries（选填） ---
@@ -172,6 +183,11 @@ def map_excel_to_api_payload(
             "phone": t.get("phone", ""),
             "purchaseQty": t.get("purchase_qty", ""),
             "cgNum": t.get("purchase_qty", ""),
+            "supListVOS": [{                     # [NEW] 供应商列表
+                "supNo": t.get("sup_no", ""),
+                "supName": t.get("supplier", ""),
+                "price": price_val,
+            }],
         })
 
     # --- 组装完整请求体 ---
@@ -191,6 +207,7 @@ def map_excel_to_api_payload(
         "needType": data.get("requirement_type", "ODM"),
         "customerName": customer_name or data.get("customer", ""),  # ★必填
         "customerCode": customer_code,
+        "customerLogo": "",                                     # [NEW] 客户Logo
         "clothType": data.get("garment_type", "T"),  # ★必填 T/W/J/K...
         "style": data.get("style_name", ""),          # ★必填
         "layout": "",
@@ -201,7 +218,17 @@ def map_excel_to_api_payload(
         "num": str(sample_quantity),                # ★必填 打版件数
         "markName": mark_name,                      # ★必填 唛头名称
         "markId": mark_id,                          # ★必填 唛头ID
-        "sewing": "",                                             # 所有工艺数据统一在works中
+        "sewing": "",                               # 已统一在works中
+        "outProcess": "",                           # [NEW] 外发工艺
+        "postProcess": "",                           # [NEW] 后道工艺
+        "sewingProcess": "",                         # [NEW] 车缝工艺
+        "patternBy": "",                             # [NEW] 纸样负责人
+        "cutBy": "",                                 # [NEW] 裁剪负责人
+        "sewingBy": "",                              # [NEW] 车缝负责人
+        "patternTime": "",                           # [NEW] 纸样时间
+        "cutTime": "",                               # [NEW] 裁剪时间
+        "sewingTime": "",                            # [NEW] 车缝时间
+        "status": 0,                                 # [NEW] 状态
 
         # 图片（必填）
         "dUploadUrls": d_upload_urls,

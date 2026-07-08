@@ -300,14 +300,15 @@ def submit_one(excel_path, image_paths):
         print(f"[OK] Image: {Path(p).name} -> belong={belong}: {url}")
         prev_belong = belong
 
-    # Map belong to type (verified from frontend insertDesign requests):
-    #   A(belong=0)→type=0, B(belong=1)→type=1, C1(belong=2)→type=2, C2+→type=9
+    # Map belong to type (new API: 0=主图,1=基础资料,2=基础资料第三页,3=工艺详情,4=纸样文件,5=纸样png,6=绣花工艺图,7=印花工艺图)
     for u in d_upload:
         b = int(u["belong"])
-        if b <= 2:
-            u["type"] = str(b)       # 0,1,2
+        if b == 0:
+            u["type"] = "0"   # 主图
+        elif b == 1:
+            u["type"] = "1"   # 基础资料图(SKC详情)
         else:
-            u["type"] = "9"          # all additional process detail images
+            u["type"] = "3"   # 工艺详情
 
     # Read Excel
     wb = openpyxl.load_workbook(excel_path, data_only=True)
@@ -476,6 +477,11 @@ def submit_one(excel_path, image_paths):
                 "isUsed": "0",
                 "price": safe_float(f_raw.get("meterPrice", 0)),
                 "arrivedTime": f_raw.get("arriveTime", ""),
+                "type": "",                                          # [NEW]
+                "colorTypeVOS": [{                                   # [NEW]
+                    "color": f_raw["color"],
+                    "colorName": f_raw.get("colorName", ""),
+                }],
             })
 
         color_val = info.get("color", "")
@@ -497,7 +503,8 @@ def submit_one(excel_path, image_paths):
     for r in range(14, 30):
         name = to_str(ws.cell(r, 2).value)
         if name and not name.startswith("▼"):
-            works.append({"cate": "0", "status": "0", "name": name, "sort": len(works)})
+            works.append({"cate": "0", "status": "0", "name": name, "sort": len(works),
+                         "factoryName": "", "unitPrice": 0})
 
     print(f"  Works: {len(works)} processes")
 
@@ -533,6 +540,10 @@ def submit_one(excel_path, image_paths):
             "arrivedTime": "",
             "isUsed": 0,
             "fCode": "",
+            "supListVOS": [{                                    # [NEW]
+                "supName": to_str(ws.cell(r, aux_col.get("供应商", 8)).value),
+                "price": safe_float(ws.cell(r, aux_col.get("采购单价", 7)).value),
+            }],
         })
 
     print(f"  Auxiliaries: {len(auxiliaries)}")
@@ -544,6 +555,7 @@ def submit_one(excel_path, image_paths):
         "needType": need_type,
         "customerName": matched_customer_name,
         "customerCode": customer_code,
+        "customerLogo": "",                                     # [NEW]
         "clothType": cloth_type,
         "style": style,
         "layout": layout,
@@ -555,6 +567,16 @@ def submit_one(excel_path, image_paths):
         "markName": mark_name,
         "markId": mark_id,
         "sewing": "",
+        "outProcess": "",                                       # [NEW]
+        "postProcess": "",                                      # [NEW]
+        "sewingProcess": "",                                    # [NEW]
+        "patternBy": "",                                        # [NEW]
+        "cutBy": "",                                            # [NEW]
+        "sewingBy": "",                                         # [NEW]
+        "patternTime": "",                                      # [NEW]
+        "cutTime": "",                                          # [NEW]
+        "sewingTime": "",                                       # [NEW]
+        "status": 0,                                            # [NEW]
         "dUploadUrls": d_upload,
         "designColors": design_colors,
         "works": works,
