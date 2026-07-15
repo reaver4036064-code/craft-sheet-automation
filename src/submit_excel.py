@@ -200,7 +200,8 @@ def parse_image_position(filename):
     """从文件名推断图片上传位置
     A / {款号}_A → belong=0 基础信息
     B / {款号}_B → belong=1 SKC详情
-    C / C1 / C2 / Cn → belong=2 工艺详情（所有C图共享belong=2，用type=9区分）
+    C / C1 → belong=2 基础资料第三页
+    C2+ → belong=3+ 工艺详情（每张独立槽位）
     """
     import re
     name = Path(filename).stem
@@ -211,8 +212,13 @@ def parse_image_position(filename):
         return '0'
     elif suffix == 'B':
         return '1'
-    elif suffix.startswith('C'):
-        return '2'  # ★ 所有C图共享belong=2，前端用type=9分组
+    elif suffix == 'C':
+        return '2'  # first process image = 基础资料第三页
+    elif suffix.startswith('C') and suffix[1:].isdigit():
+        n = int(suffix[1:])
+        if n == 1:
+            return '2'  # C1 → 基础资料第三页
+        return str(1 + n)  # C2→3, C3→4, ...
     return '0'
 
 def parse_chinese_date(text):
@@ -297,16 +303,19 @@ def submit_one(excel_path, image_paths):
         print(f"[OK] Image: {Path(p).name} -> belong={belong}: {url}")
         prev_belong = belong
 
-    # Map belong to type (confirmed from frontend production requests):
-    #   A(belong=0)→type=0(主图), B(belong=1)→type=1(基础资料), C1+(belong≥2)→type=9(工艺详情)
+    # Map belong to type:
+    #   A(belong=0)→type=0(主图), B(belong=1)→type=1(SKC详情)
+    #   C1(belong=2)→type=2(基础资料第三页), C2+(belong≥3)→type=9(工艺详情)
     for u in d_upload:
         b = int(u["belong"])
         if b == 0:
             u["type"] = "0"   # 主图
         elif b == 1:
-            u["type"] = "1"   # 基础资料图(SKC详情)
+            u["type"] = "1"   # SKC详情
+        elif b == 2:
+            u["type"] = "2"   # 基础资料第三页(C1)
         else:
-            u["type"] = "9"   # 工艺详情图(C1/C2/C3...)
+            u["type"] = "9"   # 工艺详情(C2/C3...)
 
     # Read Excel
     wb = openpyxl.load_workbook(excel_path, data_only=True)
