@@ -120,8 +120,6 @@ def map_excel_to_api_payload(
                 "status": "0",
                 "name": name,
                 "sort": i,
-                "factoryName": "",     # [NEW] 制衣厂
-                "unitPrice": 0,        # [NEW] 单价
             })
 
     # ★ 车缝工艺 → 也合并到工艺制作 (cate=0)
@@ -132,8 +130,6 @@ def map_excel_to_api_payload(
             "status": "0",
             "name": sewing_val,
             "sort": len(works),
-            "factoryName": "",
-            "unitPrice": 0,
         })
 
     # ★ 成衣工艺 → 也合并到工艺制作 (cate=0)
@@ -144,8 +140,6 @@ def map_excel_to_api_payload(
             "status": "0",
             "name": garment_val,
             "sort": len(works),
-            "factoryName": "",
-            "unitPrice": 0,
         })
 
     # --- 辅料信息 auxiliaries（选填） ---

@@ -503,8 +503,7 @@ def submit_one(excel_path, image_paths):
     for r in range(14, 30):
         name = to_str(ws.cell(r, 2).value)
         if name and not name.startswith("▼"):
-            works.append({"cate": "0", "status": "0", "name": name, "sort": len(works),
-                         "factoryName": "", "unitPrice": 0})
+            works.append({"cate": "0", "status": "0", "name": name, "sort": len(works)})
 
     print(f"  Works: {len(works)} processes")
 
