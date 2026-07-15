@@ -111,31 +111,18 @@ def map_excel_to_api_payload(
                 lines.append(line)
         for i, name in enumerate(lines):
             works.append({
-                "cate": "0",           # 0=工艺制作, 2=成衣工艺
+                "cate": "0",           # 0=工艺制作
                 "status": "0",
                 "name": name,
                 "sort": i,
+                "factoryName": "",     # 制衣厂（对话填表暂无此数据，留空）
+                "unitPrice": 0,        # 单价
             })
 
-    # ★ 车缝工艺 → 也合并到工艺制作 (cate=0)
-    sewing_val = data.get("sewing_process", "")
-    if sewing_val:
-        works.append({
-            "cate": "0",
-            "status": "0",
-            "name": sewing_val,
-            "sort": len(works),
-        })
-
-    # ★ 成衣工艺 → 也合并到工艺制作 (cate=0)
-    garment_val = data.get("garment_process", "")
-    if garment_val:
-        works.append({
-            "cate": "0",
-            "status": "0",
-            "name": garment_val,
-            "sort": len(works),
-        })
+    # ★ 车缝工艺 → sewingProcess (top-level, separate from works)
+    sewing_process = data.get("sewing_process", "")
+    # ★ 成衣工艺 → outProcess (top-level, separate from works)
+    garment_process = data.get("garment_process", "")
 
     # --- 辅料信息 auxiliaries（选填） ---
     auxiliaries = []
@@ -203,9 +190,9 @@ def map_excel_to_api_payload(
         "markName": mark_name,                      # ★必填 唛头名称
         "markId": mark_id,                          # ★必填 唛头ID
         "sewing": "",                               # 已统一在works中
-        "outProcess": "",                           # [NEW] 外发工艺
-        "postProcess": "",                           # [NEW] 后道工艺
-        "sewingProcess": "",                         # [NEW] 车缝工艺
+        "outProcess": garment_process,                 # 成衣工艺
+        "postProcess": "",                              # [NEW] 后道工艺
+        "sewingProcess": sewing_process,                # 车缝工艺
         "patternBy": "",                             # [NEW] 纸样负责人
         "cutBy": "",                                 # [NEW] 裁剪负责人
         "sewingBy": "",                              # [NEW] 车缝负责人

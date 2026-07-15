@@ -300,7 +300,8 @@ def submit_one(excel_path, image_paths):
         print(f"[OK] Image: {Path(p).name} -> belong={belong}: {url}")
         prev_belong = belong
 
-    # Map belong to type (new API: 0=主图,1=基础资料,2=基础资料第三页,3=工艺详情,4=纸样文件,5=纸样png,6=绣花工艺图,7=印花工艺图)
+    # Map belong to type (confirmed from frontend production requests):
+    #   A(belong=0)→type=0(主图), B(belong=1)→type=1(基础资料), C1+(belong≥2)→type=9(工艺详情)
     for u in d_upload:
         b = int(u["belong"])
         if b == 0:
@@ -308,7 +309,7 @@ def submit_one(excel_path, image_paths):
         elif b == 1:
             u["type"] = "1"   # 基础资料图(SKC详情)
         else:
-            u["type"] = "3"   # 工艺详情
+            u["type"] = "9"   # 工艺详情图(C1/C2/C3...)
 
     # Read Excel
     wb = openpyxl.load_workbook(excel_path, data_only=True)
@@ -492,15 +493,42 @@ def submit_one(excel_path, image_paths):
 
     print(f"  Fabrics: {len(design_colors)} SKU(s), total {sum(len(dc['fabricList']) for dc in design_colors)} fabrics")
 
-    # === Parse works/process ===
-    # Scan rows 14-21 for process data (flexible positioning)
-    works = []
-    for r in range(14, 30):
+    # === Parse processes (V7: 3 zones with ▼ markers) ===
+    works = []          # type=0 works (工艺制作)
+    sewing_items = []   # → sewingProcess (车缝工艺)
+    garment_items = []  # → outProcess (成衣工艺)
+            
+    zone = None  # 'make' | 'sew' | 'garm'
+    for r in range(12, 35):
+        label = to_str(ws.cell(r, 1).value)
         name = to_str(ws.cell(r, 2).value)
-        if name and not name.startswith("▼"):
-            works.append({"cate": "0", "status": "0", "name": name, "sort": len(works)})
+        factory = to_str(ws.cell(r, 3).value)    # 制衣厂
+        unit_price = to_str(ws.cell(r, 4).value)  # 单价
 
-    print(f"  Works: {len(works)} processes")
+        # Detect zone boundaries
+        if '工艺制作' in label:
+            zone = 'make'; continue
+        elif '车缝工艺' in label:
+            zone = 'sew'; continue
+        elif '成衣工艺' in label:
+            zone = 'garm'; continue
+        elif '▼' in label or 'SKU' in label or '面料' in label:
+            zone = None; continue
+
+        if not zone or not name or name in ('工艺名称', '工艺内容', '工艺'):
+            continue
+
+        if zone == 'make':
+            works.append({
+                "cate": "0", "status": "0", "name": name, "sort": len(works),
+                "factoryName": factory, "unitPrice": safe_float(unit_price),
+            })
+        elif zone == 'sew':
+            sewing_items.append(name)
+        elif zone == 'garm':
+            garment_items.append(name)
+
+    print(f"  Works: {len(works)}制作 + {len(sewing_items)}车缝 + {len(garment_items)}成衣")
 
     # === Parse auxiliaries ===
     auxiliaries = []
@@ -557,9 +585,9 @@ def submit_one(excel_path, image_paths):
         "markName": mark_name,
         "markId": mark_id,
         "sewing": "",
-        "outProcess": "",                                       # [NEW]
+        "outProcess": ', '.join(garment_items),                # [NEW] 成衣工艺
         "postProcess": "",                                      # [NEW]
-        "sewingProcess": "",                                    # [NEW]
+        "sewingProcess": ', '.join(sewing_items),               # [NEW] 车缝工艺
         "patternBy": "",                                        # [NEW]
         "cutBy": "",                                            # [NEW]
         "sewingBy": "",                                         # [NEW]
@@ -589,6 +617,11 @@ def submit_one(excel_path, image_paths):
     expected_qty = int(num_val or 0)
     if expected_qty > 0 and total_qty != expected_qty:
         errors.append(f"打版件数({expected_qty}件)与SKU件数总和({total_qty}件)不一致，必须修正")
+
+    # Rule 1b: SKU编号数量 = 打版件数（每个SKU对应一件打版）
+    sku_count = len(sku_groups)
+    if expected_qty > 0 and sku_count != expected_qty:
+        errors.append(f"打版件数为{expected_qty}件，但SKU区域有{sku_count}个SKU编号（应一致），请修正")
 
     # Rule 2 & 3: Check each fabric row
     for sn in sku_groups:
