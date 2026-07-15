@@ -29,3 +29,5 @@ screenshots/
 
 # Node modules (not tracked, install locally)
 scripts/node_modules/
+node_modules/
+.playwright-cli/
