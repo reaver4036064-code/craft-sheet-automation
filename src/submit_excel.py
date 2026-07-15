@@ -477,11 +477,6 @@ def submit_one(excel_path, image_paths):
                 "isUsed": "0",
                 "price": safe_float(f_raw.get("meterPrice", 0)),
                 "arrivedTime": f_raw.get("arriveTime", ""),
-                "type": "",                                          # [NEW]
-                "colorTypeVOS": [{                                   # [NEW]
-                    "color": f_raw["color"],
-                    "colorName": f_raw.get("colorName", ""),
-                }],
             })
 
         color_val = info.get("color", "")
@@ -539,10 +534,6 @@ def submit_one(excel_path, image_paths):
             "arrivedTime": "",
             "isUsed": 0,
             "fCode": "",
-            "supListVOS": [{                                    # [NEW]
-                "supName": to_str(ws.cell(r, aux_col.get("供应商", 8)).value),
-                "price": safe_float(ws.cell(r, aux_col.get("采购单价", 7)).value),
-            }],
         })
 
     print(f"  Auxiliaries: {len(auxiliaries)}")

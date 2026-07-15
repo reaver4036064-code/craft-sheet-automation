@@ -62,11 +62,6 @@ def map_excel_to_api_payload(
             "price": 0,
             "clothType": f.get("code", "A"),
             "cgBy": cg_by,
-            "type": "",                                         # [NEW] 面料类型
-            "colorTypeVOS": [{                                  # [NEW] 颜色列表
-                "color": f.get("color", ""),
-                "colorName": f.get("color", ""),
-            }],
         })
 
     if all_fabrics:
@@ -89,7 +84,7 @@ def map_excel_to_api_payload(
                 "productNo": "", "color": "", "colorName": "",
                 "buffon": "", "grem": "", "supName": "",
                 "productName": "", "price": 0, "clothType": "A",
-                "cgBy": cg_by, "type": "", "colorTypeVOS": [],
+                "cgBy": cg_by,
             }],
         })
 
@@ -177,11 +172,6 @@ def map_excel_to_api_payload(
             "phone": t.get("phone", ""),
             "purchaseQty": t.get("purchase_qty", ""),
             "cgNum": t.get("purchase_qty", ""),
-            "supListVOS": [{                     # [NEW] 供应商列表
-                "supNo": t.get("sup_no", ""),
-                "supName": t.get("supplier", ""),
-                "price": price_val,
-            }],
         })
 
     # --- 组装完整请求体 ---
