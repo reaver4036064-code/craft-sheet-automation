@@ -200,7 +200,7 @@ def parse_image_position(filename):
     """从文件名推断图片上传位置
     A / {款号}_A → belong=0 基础信息
     B / {款号}_B → belong=1 SKC详情
-    C → belong=2, C1→belong=2, C2→belong=3, Cn→belong=n+1 工艺详情（每张一个belong）
+    C / C1 / C2 / Cn → belong=2 工艺详情（所有C图共享belong=2，用type=9区分）
     """
     import re
     name = Path(filename).stem
@@ -211,11 +211,8 @@ def parse_image_position(filename):
         return '0'
     elif suffix == 'B':
         return '1'
-    elif suffix == 'C':
-        return '2'  # first process image
-    elif suffix.startswith('C') and suffix[1:].isdigit():
-        n = int(suffix[1:])
-        return str(1 + n)  # C1→2, C2→3, C3→4...
+    elif suffix.startswith('C'):
+        return '2'  # ★ 所有C图共享belong=2，前端用type=9分组
     return '0'
 
 def parse_chinese_date(text):
