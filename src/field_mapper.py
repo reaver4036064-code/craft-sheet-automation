@@ -119,11 +119,17 @@ def map_excel_to_api_payload(
                 "unitPrice": 0,        # 单价
             })
 
-    # ★ 车缝工艺 → `sewing` 字段 (真实字段名)
-    sewing_items = []
+    # ★ 车缝工艺 → works[] with cate='1'
     sewing_raw = data.get("sewing_process", "")
     if sewing_raw:
-        sewing_items = [s.strip() for s in sewing_raw.split(",") if s.strip()]
+        for s_name in sewing_raw.split(","):
+            s_name = s_name.strip()
+            if s_name:
+                works.append({
+                    "cate": "1", "status": "0", "name": s_name,
+                    "sort": len(works),
+                    "factoryName": "", "unitPrice": 0,
+                })
     
     # ★ 成衣工艺 → works[] with cate='2'
     garment_raw = data.get("garment_process", "")
@@ -202,8 +208,7 @@ def map_excel_to_api_payload(
         "num": str(sample_quantity),                # ★必填 打版件数
         "markName": mark_name,                      # ★必填 唛头名称
         "markId": mark_id,                          # ★必填 唛头ID
-        "sewing": "",                               # 已统一在works中
-        "sewing": ", ".join(sewing_items),              # ★车缝工艺(真实字段名)
+        "sewing": "",                               # 已统一在works中(cate=0/1/2)
         "patternBy": "",                             # [NEW] 纸样负责人
         "cutBy": "",                                 # [NEW] 裁剪负责人
         "sewingBy": "",                              # [NEW] 车缝负责人

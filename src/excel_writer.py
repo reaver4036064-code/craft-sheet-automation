@@ -1,11 +1,11 @@
 """
-V6 模板 Excel 生成器 — 基于 config/成衣工艺单_设计师填表模板_v6.xlsx 填数
+V7 模板 Excel 生成器 — 基于 config/成衣工艺单_设计师填表模板_v7.xlsx 填数
 """
 import os, sys, json
 from pathlib import Path
 from openpyxl import load_workbook
 
-TEMPLATE = "成衣工艺单_设计师填表模板_v6.xlsx"
+TEMPLATE = "成衣工艺单_设计师填表模板_v7.xlsx"
 
 def _find_template():
     for base in [Path(__file__).resolve().parent.parent / "config",

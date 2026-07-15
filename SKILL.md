@@ -43,15 +43,15 @@ agent_created: true
        ↓
   Agent 询问: "Excel 表格已经填好了吗？"
        ↓
-  ┌─ 还没填 → ① 建议用户填表（指向V6模板）
-  │           ② 复制 V6 模板到用户桌面
+  ┌─ 还没填 → ① 建议用户填表（指向V7模板）
+  │           ② 复制 V7 模板到用户桌面
   │           ③ 展示 A.1 填表指引 → 对话逐区填表
   │
   └─ 已经填好了 → 场景 B：直接审查 Excel（设计师已填好）
 ```
 
-> ⚠️ **「还没填」时必须先复制 V6 模板到桌面**，再展示填表指引。
-> 复制命令：`cp "config/成衣工艺单_设计师填表模板_v6.xlsx" "$HOME/Desktop/成衣工艺单_填表模板.xlsx"`
+> ⚠️ **「还没填」时必须先复制 V7 模板到桌面**，再展示填表指引。
+> 复制命令：`cp "config/成衣工艺单_设计师填表模板_v7.xlsx" "$HOME/Desktop/成衣工艺单_V7_填表模板.xlsx"`
 
 ### 场景细分
 
@@ -235,9 +235,7 @@ Agent 读取设计师提供的 Excel 文件，逐区检查：
 | 字段 | 说明 |
 |------|------|
 | `customerLogo` | 客户 Logo，默认留空 |
-| `outProcess` | 外发工艺 |
-| `postProcess` | 后道工艺 |
-| `sewingProcess` | 车缝工艺 |
+| `sewing` | 已废弃，车缝工艺统一在 `works[].cate='1'` |
 | `patternBy` / `cutBy` / `sewingBy` | 纸样/裁剪/车缝负责人 |
 | `patternTime` / `cutTime` / `sewingTime` | 各阶段完成时间 |
 | `status` | 固定 `0` |
