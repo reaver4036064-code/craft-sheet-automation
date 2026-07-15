@@ -529,7 +529,8 @@ def submit_one(excel_path, image_paths):
                 "factoryName": factory, "unitPrice": safe_float(unit_price),
             })
 
-    print(f"  Works: {len(works)}制作 + {len(sewing_items)}车缝 + {len(garment_items)}成衣")
+    garm_count = sum(1 for w in works if w.get("cate") == "2")
+    print(f"  Works: {sum(1 for w in works if w.get('cate')=='0')}制作 + {len(sewing_items)}车缝 + {garm_count}成衣")
 
     # === Parse auxiliaries ===
     auxiliaries = []
