@@ -494,10 +494,9 @@ def submit_one(excel_path, image_paths):
     print(f"  Fabrics: {len(design_colors)} SKU(s), total {sum(len(dc['fabricList']) for dc in design_colors)} fabrics")
 
     # === Parse processes (V7: 3 zones with ▼ markers) ===
-    works = []          # type=0 works (工艺制作)
-    sewing_items = []   # → sewingProcess (车缝工艺)
-    garment_items = []  # → outProcess (成衣工艺)
-            
+    works = []          # cate=0 工艺制作 + cate=2 成衣工艺
+    sewing_items = []   # → sewing 字段 (车缝工艺)
+    
     zone = None  # 'make' | 'sew' | 'garm'
     for r in range(12, 35):
         label = to_str(ws.cell(r, 1).value)
@@ -505,7 +504,6 @@ def submit_one(excel_path, image_paths):
         factory = to_str(ws.cell(r, 3).value)    # 制衣厂
         unit_price = to_str(ws.cell(r, 4).value)  # 单价
 
-        # Detect zone boundaries
         if '工艺制作' in label:
             zone = 'make'; continue
         elif '车缝工艺' in label:
@@ -526,7 +524,10 @@ def submit_one(excel_path, image_paths):
         elif zone == 'sew':
             sewing_items.append(name)
         elif zone == 'garm':
-            garment_items.append(name)
+            works.append({
+                "cate": "2", "status": "0", "name": name, "sort": len(works),
+                "factoryName": factory, "unitPrice": safe_float(unit_price),
+            })
 
     print(f"  Works: {len(works)}制作 + {len(sewing_items)}车缝 + {len(garment_items)}成衣")
 
@@ -585,9 +586,7 @@ def submit_one(excel_path, image_paths):
         "markName": mark_name,
         "markId": mark_id,
         "sewing": "",
-        "outProcess": ', '.join(garment_items),                # [NEW] 成衣工艺
-        "postProcess": "",                                      # [NEW]
-        "sewingProcess": ', '.join(sewing_items),               # [NEW] 车缝工艺
+        "sewing": ', '.join(sewing_items),                     # ★车缝工艺(真实字段名) [NEW]
         "patternBy": "",                                        # [NEW]
         "cutBy": "",                                            # [NEW]
         "sewingBy": "",                                         # [NEW]

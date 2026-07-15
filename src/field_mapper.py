@@ -119,10 +119,23 @@ def map_excel_to_api_payload(
                 "unitPrice": 0,        # 单价
             })
 
-    # ★ 车缝工艺 → sewingProcess (top-level, separate from works)
-    sewing_process = data.get("sewing_process", "")
-    # ★ 成衣工艺 → outProcess (top-level, separate from works)
-    garment_process = data.get("garment_process", "")
+    # ★ 车缝工艺 → `sewing` 字段 (真实字段名)
+    sewing_items = []
+    sewing_raw = data.get("sewing_process", "")
+    if sewing_raw:
+        sewing_items = [s.strip() for s in sewing_raw.split(",") if s.strip()]
+    
+    # ★ 成衣工艺 → works[] with cate='2'
+    garment_raw = data.get("garment_process", "")
+    if garment_raw:
+        for g_name in garment_raw.split(","):
+            g_name = g_name.strip()
+            if g_name:
+                works.append({
+                    "cate": "2", "status": "0", "name": g_name,
+                    "sort": len(works),
+                    "factoryName": "", "unitPrice": 0,
+                })
 
     # --- 辅料信息 auxiliaries（选填） ---
     auxiliaries = []
@@ -190,9 +203,7 @@ def map_excel_to_api_payload(
         "markName": mark_name,                      # ★必填 唛头名称
         "markId": mark_id,                          # ★必填 唛头ID
         "sewing": "",                               # 已统一在works中
-        "outProcess": garment_process,                 # 成衣工艺
-        "postProcess": "",                              # [NEW] 后道工艺
-        "sewingProcess": sewing_process,                # 车缝工艺
+        "sewing": ", ".join(sewing_items),              # ★车缝工艺(真实字段名)
         "patternBy": "",                             # [NEW] 纸样负责人
         "cutBy": "",                                 # [NEW] 裁剪负责人
         "sewingBy": "",                              # [NEW] 车缝负责人
