@@ -493,9 +493,8 @@ def submit_one(excel_path, image_paths):
 
     print(f"  Fabrics: {len(design_colors)} SKU(s), total {sum(len(dc['fabricList']) for dc in design_colors)} fabrics")
 
-    # === Parse processes (V7: 3 zones with ▼ markers) ===
-    works = []          # cate=0 工艺制作 + cate=2 成衣工艺
-    sewing_items = []   # → sewing 字段 (车缝工艺)
+    # === Parse processes (V7: 3 zones → works[] with cate 0/1/2) ===
+    works = []  # 所有工艺统一进works[]
     
     zone = None  # 'make' | 'sew' | 'garm'
     for r in range(12, 35):
@@ -516,21 +515,16 @@ def submit_one(excel_path, image_paths):
         if not zone or not name or name in ('工艺名称', '工艺内容', '工艺'):
             continue
 
-        if zone == 'make':
-            works.append({
-                "cate": "0", "status": "0", "name": name, "sort": len(works),
-                "factoryName": factory, "unitPrice": safe_float(unit_price),
-            })
-        elif zone == 'sew':
-            sewing_items.append(name)
-        elif zone == 'garm':
-            works.append({
-                "cate": "2", "status": "0", "name": name, "sort": len(works),
-                "factoryName": factory, "unitPrice": safe_float(unit_price),
-            })
+        cate = '0' if zone == 'make' else '1' if zone == 'sew' else '2'
+        works.append({
+            "cate": cate, "status": "0", "name": name, "sort": len(works),
+            "factoryName": factory, "unitPrice": safe_float(unit_price),
+        })
 
-    garm_count = sum(1 for w in works if w.get("cate") == "2")
-    print(f"  Works: {sum(1 for w in works if w.get('cate')=='0')}制作 + {len(sewing_items)}车缝 + {garm_count}成衣")
+    make_n = sum(1 for w in works if w['cate'] == '0')
+    sew_n  = sum(1 for w in works if w['cate'] == '1')
+    garm_n = sum(1 for w in works if w['cate'] == '2')
+    print(f"  Works: {make_n}制作 + {sew_n}车缝 + {garm_n}成衣")
 
     # === Parse auxiliaries ===
     auxiliaries = []
@@ -587,7 +581,6 @@ def submit_one(excel_path, image_paths):
         "markName": mark_name,
         "markId": mark_id,
         "sewing": "",
-        "sewing": ', '.join(sewing_items),                     # ★车缝工艺(真实字段名) [NEW]
         "patternBy": "",                                        # [NEW]
         "cutBy": "",                                            # [NEW]
         "sewingBy": "",                                         # [NEW]
