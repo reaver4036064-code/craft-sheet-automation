@@ -14,7 +14,7 @@ def _load_mode():
     mode_path = Path(__file__).resolve().parent / ".mode"
     if mode_path.exists():
         return mode_path.read_text(encoding="utf-8").strip()
-    return "sandbox"
+    return "production"
 
 _URLS = {
     "sandbox":    {"api": "https://mctwo.fsjqfz.xyz/makeCloth", "web": "https://mctwo.fsjqfz.xyz"},

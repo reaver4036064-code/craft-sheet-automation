@@ -14,7 +14,7 @@ def _load_mode():
     mode_path = SCRIPT_DIR / ".mode"
     if mode_path.exists():
         return mode_path.read_text(encoding="utf-8").strip()
-    return "sandbox"  # default safe
+    return "production"  # default safe — 正式系统
 
 _MODE = _load_mode()
 _URLS = {
