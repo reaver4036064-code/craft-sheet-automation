@@ -1,6 +1,6 @@
 """
 工艺单自动上传 - API 客户端
-沙箱环境：mctwo.fsjqfz.xyz
+支持沙箱/正式环境切换（通过 src/.mode 文件控制）
 """
 
 import os
@@ -8,10 +8,25 @@ import time
 import json
 import requests
 from typing import Dict, Any, Optional, List
+from pathlib import Path
+
+def _load_mode():
+    mode_path = Path(__file__).resolve().parent / ".mode"
+    if mode_path.exists():
+        return mode_path.read_text(encoding="utf-8").strip()
+    return "sandbox"
+
+_URLS = {
+    "sandbox":    {"api": "https://mctwo.fsjqfz.xyz/makeCloth", "web": "https://mctwo.fsjqfz.xyz"},
+    "production": {"api": "https://mc.fsjqfz.xyz/makeCloth",    "web": "https://mc.fsjqfz.xyz"},
+}
+_MODE = _load_mode()
+_DEFAULT_API = _URLS[_MODE]["api"]
+_DEFAULT_WEB = _URLS[_MODE]["web"]
 
 
 class MCAPIClient:
-    """打板管理系统 API 客户端（沙箱环境）"""
+    """打板管理系统 API 客户端"""
 
     def __init__(self, base_url: str, web_url: str):
         self.base_url = base_url.rstrip("/")
@@ -170,10 +185,8 @@ class MCAPIClient:
 
 def load_config() -> Dict[str, str]:
     return {
-        "api_base": os.getenv("MC_API_BASE_URL",
-                               "https://mctwo.fsjqfz.xyz/makeCloth"),
-        "web_base": os.getenv("MC_WEB_BASE_URL",
-                              "https://mctwo.fsjqfz.xyz"),
+        "api_base": os.getenv("MC_API_BASE_URL", _DEFAULT_API),
+        "web_base": os.getenv("MC_WEB_BASE_URL", _DEFAULT_WEB),
         "username": os.getenv("MC_USERNAME", ""),
         "password": os.getenv("MC_PASSWORD", ""),
         "login_type": os.getenv("MC_LOGIN_TYPE", "erp-pc"),

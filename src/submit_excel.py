@@ -9,7 +9,21 @@ import openpyxl
 from pathlib import Path
 import os, sys
 
-BASE = "https://mctwo.fsjqfz.xyz/makeCloth"
+# === Environment mode (sandbox / production) ===
+def _load_mode():
+    mode_path = SCRIPT_DIR / ".mode"
+    if mode_path.exists():
+        return mode_path.read_text(encoding="utf-8").strip()
+    return "sandbox"  # default safe
+
+_MODE = _load_mode()
+_URLS = {
+    "sandbox":    {"api": "https://mctwo.fsjqfz.xyz/makeCloth", "web": "https://mctwo.fsjqfz.xyz"},
+    "production": {"api": "https://mc.fsjqfz.xyz/makeCloth",    "web": "https://mc.fsjqfz.xyz"},
+}
+BASE = _URLS[_MODE]["api"]
+print(f"[MODE] {_MODE.upper()} → {_URLS[_MODE]['web']}")
+
 
 # === Identity management (persisted to .identity.json) ===
 SCRIPT_DIR = Path(__file__).resolve().parent
