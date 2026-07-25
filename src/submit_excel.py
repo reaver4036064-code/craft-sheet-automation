@@ -10,6 +10,9 @@ from pathlib import Path
 import os, sys
 
 # === Environment mode (sandbox / production) ===
+# ★ 唯一区别：mc 后面有无 "two"
+#   正式: https://mc.fsjqfz.xyz
+#   沙箱: https://mctwo.fsjqfz.xyz
 def _load_mode():
     mode_path = SCRIPT_DIR / ".mode"
     if mode_path.exists():

@@ -16,6 +16,8 @@ def _load_mode():
         return mode_path.read_text(encoding="utf-8").strip()
     return "production"
 
+# ★ 唯一区别：mc 后面有无 "two"
+#   正式: https://mc.fsjqfz.xyz   沙箱: https://mctwo.fsjqfz.xyz
 _URLS = {
     "sandbox":    {"api": "https://mctwo.fsjqfz.xyz/makeCloth", "web": "https://mctwo.fsjqfz.xyz"},
     "production": {"api": "https://mc.fsjqfz.xyz/makeCloth",    "web": "https://mc.fsjqfz.xyz"},

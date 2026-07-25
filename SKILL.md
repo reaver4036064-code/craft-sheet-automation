@@ -554,7 +554,21 @@ cd "F:\WORKBUDDY WS\工艺单数据表单自动化" && python src/main.py "<图�
 
 ---
 
-## 沙箱环境
+## 环境切换（铁律）
+
+> ⚠️ **默认模式：正式系统**。仅在用户明确说「进入沙箱模式」时才切换到沙箱。
+> **严禁在正式系统中做测试。**
+
+| 模式 | 触发词 | 地址 | .mode 内容 |
+|------|--------|------|-----------|
+| 正式系统（默认） | — | `https://mc.fsjqfz.xyz` | `production` |
+| 沙箱模式 | "进入沙箱模式" | `https://mctwo.fsjqfz.xyz` | `sandbox` |
+| 退出沙箱 | "退出沙箱模式" | 切回正式系统 | `production` |
+
+> ★ 两个地址的唯一区别：`mc` 后面有无 `two`。正式系统 `mc.fsjqfz.xyz`，沙箱 `mctwo.fsjqfz.xyz`。
+> 切换方式：修改 `src/.mode` 文件内容（`production`/`sandbox`），`submit_excel.py` 和 `api_client.py` 自动读取。
+
+## 沙箱环境（测试用）
 
 | 项目 | 值 |
 |------|-----|
