@@ -276,9 +276,6 @@ def parse_chinese_date(text):
             result = date(today.year, today.month + 1, 1)
         return result.strftime("%Y-%m-%d"), f"'{text}' 已自动转换为 {result.strftime('%Y-%m-%d')}"
     
-    # 下周X
-    m = re_module.match(r'^下?周?([一二三四五六日])$', text)
-    
     # Can't convert
     return text, f"预计完成时间 '{text}' 不是标准日期格式，将原样提交（前端可能无法显示）"
 
