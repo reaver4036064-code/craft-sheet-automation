@@ -716,8 +716,8 @@ def submit_one(excel_path, image_paths):
             xls_p = Path(excel_path)
             folder_p = xls_p.parent
             
-            # Always rename Excel to {style_num}.xlsx
-            new_xls = xls_p.with_name(f"{style_num}.xlsx")
+            # Always rename Excel to {style_num}_{name}.xlsx
+            new_xls = xls_p.with_name(f"{style_num}_{USER_REALNAME}.xlsx")
             if xls_p.name != new_xls.name:
                 xls_p.rename(new_xls)
                 print(f"  [RENAME] Excel: {xls_p.name} -> {new_xls.name}")
@@ -750,9 +750,9 @@ def submit_one(excel_path, image_paths):
                     ip.rename(new_ip)
                     print(f"  [RENAME] Image: {ip.name} -> {new_ip.name}")
 
-            # Rename folder to {style_num}
-            new_folder = folder_p.with_name(style_num)
-            if folder_p.name != style_num:
+            # Rename folder to {style_num}_{name}
+            new_folder = folder_p.with_name(f"{style_num}_{USER_REALNAME}")
+            if folder_p.name != f"{style_num}_{USER_REALNAME}":
                 try:
                     folder_p.rename(new_folder)
                     print(f"  [RENAME] Folder: {folder_p.name} -> {new_folder.name}")
