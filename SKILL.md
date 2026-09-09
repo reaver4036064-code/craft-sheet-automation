@@ -244,7 +244,7 @@ Agent 读取设计师提供的 Excel 文件，逐区检查：
 | 退出沙箱 | "退出沙箱模式" | 切回正式系统 | `production` |
 
 > ★ 两个地址的唯一区别：`mc` 后面有无 `two`。正式系统 `mc.fsjqfz.xyz`，沙箱 `mctwo.fsjqfz.xyz`。
-> 切换方式：修改 `src/.mode` 文件内容（`production`/`sandbox`），`submit_excel.py` 和 `api_client.py` 自动读取。
+> 切换方式：修改 `src/.mode` 文件内容（`production`/`sandbox`），`config.py` 自动读取并决定 API 地址。
 > ⚠️ `.mode` 与 `.identity.json` 均为本地文件，已加入 `.gitignore`，不会提交到仓库。
 
 ## 沙箱环境（测试用）
@@ -264,24 +264,52 @@ Agent 读取设计师提供的 Excel 文件，逐区检查：
 | 客户查询 | `GET /makeCloth/business/customer/public` |
 | 唛头查询 | `POST /makeCloth/business/markLabel/select` |
 
-## Excel 模板映射
+## Excel 模板映射（实测坐标，与 excel_parser.py 一致）
 
-模板文件：`成衣设计系统_标准化模板.xlsx` → Sheet `成衣工艺制单`
+> 模板：`config/成衣工艺单_设计师填表模板_v7.xlsx`（代码读取 Sheet1 活动工作表）。
+> SKU 区与辅料区为**动态表头扫描**（按「SKU编号」/「辅料名称」定位），坐标因模板版式可能位移，勿硬编码固定行。
 
-| Excel 单元格 | 对应API字段 | 说明 |
-|-------------|-----------|------|
-| F5 | itemNum | 款号 |
-| B6 | needType | 需求类型(OEM/ODM/OBM) |
-| D6 | customerName | 客户名称 |
-| F6 | customerCode | 客户编码 |
-| B7 | clothType | 衣服类型(T/W/J/K...) |
-| D7 | style | 款式 |
-| B8 | num | 打版件数(公式自动) |
-| D8 | version | 版次 |
-| F8 | designName | 指派设计师 |
-| B9 | finishTime | 预计完成时间 |
-| B10 | markName | 烫唛 |
-| H8 | sewing | 车缝工艺 |
-| SKC面料区(行30+) | designColors[].fabricList | 面料/A/B/C/D |
-| C14-C27 | works[] | 工艺制作+后道 |
-| R233+ | auxiliaries[] | 辅料清单 |
+### 基础信息区（Sheet1 顶部）
+
+| Excel 单元格 | API 字段 | 说明 |
+|-------------|---------|------|
+| B6 | `itemNum` | 款号（留空 → 系统自动生成，成功后回填） |
+| F6 | `needType` | 需求类型 (OEM/ODM/OBM) |
+| B7 | `clothType` | 衣服类型 (T/W/J/K...) |
+| F7 | `style` | 款式 |
+| B8 | `customerName` | 客户名称（API 模糊匹配补 `customerCode`） |
+| B9 | `num` | 打版件数（缺省按 1） |
+| F9 | `layout` | 版型 |
+| B10 | `markName` | 烫唛 |
+| F10 | `finishTime` | 预计完成时间（支持中文日期：下周三/月底/明天） |
+
+### 工艺区（works[]，约 12-35 行，按 A 列分区标题识别）
+
+| Excel 列 | API 字段 | 说明 |
+|---------|---------|------|
+| A 列标题 | 分区 | `工艺制作`/`车缝工艺`/`成衣工艺` → `cate` 0/1/2 |
+| B | `works[].name` | 工艺名称 |
+| C | `works[].factoryName` | 制衣厂 |
+| D | `works[].unitPrice` | 单价 |
+
+### SKU/面料区（designColors[].fabricList，动态扫「SKU编号」表头，V7 模板实测约第 34 行）
+
+| Excel 表头列 | API 字段 | 说明 |
+|-------------|---------|------|
+| SKU编号(A) | `designColors[].sku/skuName` | 取 SKU1/SKU2...（禁止颜色_尺码） |
+| 颜色 / 尺码 | `color` / `size` | 存 designColors 层 |
+| 件数 | `num` | 每 SKU 打版件数 |
+| 布类 / 面料编号 | `fabricList[].clothType` / `productNo` | 必填 |
+| 色号 / 颜色名 | `fabricList[].color` / `colorName` | 必填（缺失拦截） |
+| 是否罗纹 / 幅宽CM / 克重 | `isRib` / `buffon` / `grem` | 不在 DB 时手工补充 |
+| 供应商 / 成分 / 品名 | `supName` / `component` / `productName` | JQ 开头自动拉 DB |
+| 采购米长 / 采购金额 / 采购人 / 要求到货时间 | `meterLen` / `meterPrice` / `cgBy` / `arriveTime` | 采购人空→默认使用者 |
+
+### 辅料区（auxiliaries[]，动态扫「辅料名称」表头，V7 模板实测约第 45 行）
+
+| Excel 表头列 | API 字段 |
+|-------------|---------|
+| 辅料名称 / 规格型号 / 颜色 | `name` / `type` / `color` |
+| 用量 / 单位 | `usageAct` / `unit`（单位空默认"个"） |
+| 采购单价 / 供应商 / 联系方式 | `price` / `supName` / `phone` |
+| 采购人 | `cgBy`（空→默认使用者） |
