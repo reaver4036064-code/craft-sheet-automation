@@ -3,6 +3,17 @@
 .env
 config/.env
 
+# Environment mode (sandbox/production) — local only, never commit
+.mode
+src/.mode
+
+# Local test/debug scripts (not for sharing)
+build_*.py
+stress_*.py
+test_*.py
+retry_*.py
+verify_*.py
+
 # Python
 __pycache__/
 *.pyc

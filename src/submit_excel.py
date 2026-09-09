@@ -9,6 +9,8 @@ import openpyxl
 from pathlib import Path
 import os, sys
 
+SCRIPT_DIR = Path(__file__).resolve().parent
+
 # === Environment mode (sandbox / production) ===
 # ★ 唯一区别：mc 后面有无 "two"
 #   正式: https://mc.fsjqfz.xyz
@@ -29,7 +31,6 @@ print(f"[MODE] {_MODE.upper()} → {_URLS[_MODE]['web']}")
 
 
 # === Identity management (persisted to .identity.json) ===
-SCRIPT_DIR = Path(__file__).resolve().parent
 IDENTITY_FILE = SCRIPT_DIR / ".identity.json"
 
 USERNAME = os.getenv("MC_USERNAME", "")
@@ -504,7 +505,7 @@ def submit_one(excel_path, image_paths):
         size_val = info.get("size", "L")
         design_colors.append({
             "color": color_val,
-            "sku": f"{color_val}_{size_val}",  # unique SKU identifier
+            "sku": f"SKU{sn}",  # SKU标识：SKU1/SKU2...，禁止填颜色_尺码
             "skuName": f"SKU{sn}",
             "size": size_val,
             "num": info.get("qty", "1"),
