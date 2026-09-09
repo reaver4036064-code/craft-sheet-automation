@@ -19,9 +19,9 @@
 |------|---------|
 | `A.png` / `A.jpg` | 主图（基础信息） |
 | `B.png` / `B.jpg` | SKC 详情图 |
-| `C1.png` / `C1.jpg` | 基础资料第三页 |
-| `C2.png` / `C2.jpg` | 工艺详情第 1 张 |
-| `C3.png` ... | 工艺详情第 2 张起（支持任意张数） |
+| `C1.png` / `C1.jpg` | 工艺详情第 1 张 |
+| `C2.png` / `C2.jpg` | 工艺详情第 2 张 |
+| `C3.png` ... | 工艺详情第 3 张起（支持任意张数） |
 
 > 图片可用 JPG 或 PNG 格式，文件名只保留字母和数字（如 `A.png`），无需加款号前缀。提交成功后系统自动重命名为 `{款号}_A.png`。
 
@@ -42,9 +42,9 @@
 ├── 📄 表单.xlsx          ← 用 v7 模板填好
 ├── 🖼️ A.png              ← 主图
 ├── 🖼️ B.png              ← SKC 详情
-├── 🖼️ C1.png             ← 基础资料第三页
-├── 🖼️ C2.png             ← 工艺详情1
-└── 🖼️ C3.png             ← 工艺详情2
+├── 🖼️ C1.png             ← 工艺详情1
+├── 🖼️ C2.png             ← 工艺详情2
+└── 🖼️ C3.png             ← 工艺详情3
 ```
 
 提交成功后，文件夹、表格全部自动重命名为 `{款号}_{姓名}` 格式，图片重命名为 `{款号}_{位置}.png`，方便按姓名检索。
@@ -60,9 +60,9 @@
 ### 本地测试
 
 ```bash
-cd skill/src
-python submit_excel.py        # 批量处理 mode 会自动扫描文件夹
-python -c "from fixed_submit import submit_one; ..."   # 单文件夹测试
+cd src
+python submit_excel.py        # 批量处理，扫描文件夹自动提交
+python -c "from submit_excel import submit_one; ..."   # 单文件夹测试
 ```
 
 ### 环境变量（可选，优先使用交互式身份流程）
