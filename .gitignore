@@ -43,3 +43,9 @@ scripts/node_modules/
 node_modules/
 .playwright-cli/
 .xlsx
+
+# Regression fixtures (contain real customer/supplier/contact data — never publish)
+tests/
+
+# Skill documentation (kept in IMA knowledge base, not in the public repo)
+SA设计版单自动化上传_SKILL说明_*.md

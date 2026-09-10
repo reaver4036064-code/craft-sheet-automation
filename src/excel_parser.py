@@ -131,11 +131,16 @@ def parse_excel(excel_path):
             # 若仍填了内容且当前分区有效 → 保留收集（不丢数据），但必须告警提示确认。
             if zone and (name or factory or unit_price):
                 _zone_cn = {'make': '工艺制作', 'sew': '车缝工艺', 'garm': '成衣工艺'}.get(zone, zone)
-                row_warnings.append(
-                    f"第{r}行：A列(序号)为空但填写了「{name or factory or unit_price}」，"
-                    f"已按上一分区「{_zone_cn}」收集。请确认该行是否应填写——"
-                    f"若非有意，请移到带序号的黄色行内并删除本行内容。"
-                )
+                if name:
+                    row_warnings.append(
+                        f"第{r}行：A列(序号)为空但填写了「{name}」，已按上一分区「{_zone_cn}」收集。"
+                        f"请确认该行是否应填写——若非有意，请移到带序号的黄色行内并删除本行内容。"
+                    )
+                else:
+                    row_warnings.append(
+                        f"第{r}行：A列(序号)为空，且缺少工艺名称（仅填了「{factory or unit_price}」），"
+                        f"该行无法成为工艺项，未收集。请补填工艺名称与序号，或删除该行内容。"
+                    )
                 # 不重置 zone，继续走下面的收集逻辑
             else:
                 zone = None
