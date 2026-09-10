@@ -85,6 +85,10 @@ def submit_one(excel_path, image_paths):
     print(f"  Works: {make_n}制作 + {sew_n}车缝 + {garm_n}成衣")
     print(f"  Auxiliaries: {len(parsed['auxiliaries'])}")
 
+    # === 无效行提醒（只报不改：不拦截提交）===
+    for msg in parsed.get("_row_warnings", []):
+        print(f"  [WARN] {msg}")
+
     print(f"\n[DEBUG] dUploadUrls: {len(d_upload)} images (types: {[u['type'] for u in d_upload]}, belongs: {[u['belong'] for u in d_upload]})")
 
     # === Pre-submit validation ===

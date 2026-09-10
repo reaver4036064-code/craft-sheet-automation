@@ -6,6 +6,7 @@ from parsers import to_str, safe_float, parse_chinese_date
 def parse_excel(excel_path):
     wb = openpyxl.load_workbook(excel_path, data_only=True)
     ws = wb.active
+    row_warnings = []  # 无效行提醒（只报不改，随返回值带出由入口打印）
 
     # === Parse basic info ===
     # B6=款号, F6=需求类型, B7=衣服类型, F7=款式, B8=客户名称
@@ -114,6 +115,12 @@ def parse_excel(excel_path):
         # 说明：V7 模板每行有意义内容（分区标题 ▼、表头「序号」、数据行序号 1-4）均在 A 列；
         #       工艺区之间的间隔行（18/25/32）A 列为空，写入其中任意列都应视为无效。
         if not label:
+            # A 列无序号/标题 → 该行不属于任何工艺编号行；若有内容则记警告（只报不改）
+            if name or factory or unit_price:
+                row_warnings.append(
+                    f"第{r}行：A列(序号)为空但填写了内容（{name or factory or unit_price}），"
+                    f"该行不是有效工艺行，已忽略。请把工艺填到带序号的黄色行内。"
+                )
             zone = None
             continue
 
@@ -157,6 +164,14 @@ def parse_excel(excel_path):
             break
         name = to_str(ws.cell(r, aux_col.get("辅料名称", 2)).value)
         if not name:
+            # 辅料名称为空：若 A 列有序号且 C-L 任一列有内容 → 记警告（只报不改）
+            if to_str(ws.cell(r, 1).value) and any(
+                to_str(ws.cell(r, c).value) for c in range(3, 13)
+            ):
+                row_warnings.append(
+                    f"第{r}行：辅料名称（辅料信息区）为空但其他列有内容，该行无效，已忽略。"
+                    f"请先填写「辅料名称」。"
+                )
             continue
         auxiliaries.append({
             "name": name,
@@ -191,4 +206,5 @@ def parse_excel(excel_path):
         "sku_info": sku_info,
         "works": works,
         "auxiliaries": auxiliaries,
+        "_row_warnings": row_warnings,
     }
