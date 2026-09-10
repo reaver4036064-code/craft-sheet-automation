@@ -107,6 +107,10 @@ def parse_excel(excel_path):
                 "isRib": is_rib,
             })
 
+    # 剔除空 SKU 组（仅有序号、未填任何面料的"幻影组"），避免校验/提交阶段误判 SKU 数量
+    sku_groups = {k: v for k, v in sku_groups.items() if v}
+    sku_info = {k: v for k, v in sku_info.items() if k in sku_groups}
+
     # === Parse processes (V7: 3 zones → works[] with cate 0/1/2) ===
     works = []  # 所有工艺统一进works[]
 
@@ -155,7 +159,17 @@ def parse_excel(excel_path):
         elif '▼' in label or 'SKU' in label or '面料' in label:
             zone = None; continue
 
-        if not zone or not name:
+        if not zone:
+            # 未识别到所属分区（工艺制作/车缝工艺/成衣工艺 的标题行缺失或被改动）：
+            # 若该行确实填了工艺名称 → 告警上报，避免静默丢弃（只报不改）
+            if name and label != '序号' and '▼' not in label \
+                    and '工艺名称' not in name and '工艺内容' not in name:
+                row_warnings.append(
+                    f"第{r}行：检测到工艺名称「{name}」但未识别到所属分区"
+                    f"（「工艺制作/车缝工艺/成衣工艺」标题行可能缺失或被改动），该行未收集。"
+                )
+            continue
+        if not name:
             continue
         # 表头行：A 列为「序号」，或 B 列为「工艺名称/工艺内容」的各种变体
         # （严禁裸 '工艺' in name 包含匹配，以免误判「工艺处理」等正常工艺名）
@@ -196,10 +210,9 @@ def parse_excel(excel_path):
             break
         name = to_str(ws.cell(r, aux_col.get("辅料名称", 2)).value)
         if not name:
-            # 辅料名称为空：若 A 列有序号且 C-L 任一列有内容 → 记警告（只报不改）
-            if to_str(ws.cell(r, 1).value) and any(
-                to_str(ws.cell(r, c).value) for c in range(3, 13)
-            ):
+            # 辅料名称为空：只要 C-L 任一列有内容 → 记警告（只报不改）
+            # 注：不再要求 A 列有序号（原条件会漏掉"A列与名称同时为空、但其他列有值"的情况）
+            if any(to_str(ws.cell(r, c).value) for c in range(3, 13)):
                 row_warnings.append(
                     f"第{r}行：辅料名称（辅料信息区）为空但其他列有内容，该行无效，已忽略。"
                     f"请先填写「辅料名称」。"

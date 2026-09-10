@@ -14,6 +14,9 @@ test_*.py
 retry_*.py
 verify_*.py
 
+# ...but DO track the distribution packaging script
+!scripts/build_skill_zip.py
+
 # Python
 __pycache__/
 *.pyc

@@ -7,8 +7,9 @@ agent_created: true
 
 # TB-SA设计版单自动化上传 Skill
 
-> **项目根目录**: `F:\WORKBUDDY WS\工艺单数据表单自动化`
-> 所有 Python 脚本位于 `src/`，所有相对路径以此项目根目录为基准。
+> **仓库**：https://github.com/reaver4036064-code/craft-sheet-automation
+> **Skill 安装目录**：本 `SKILL.md` 所在目录（Windows 默认 `C:\Users\<用户>\.workbuddy\skills\craft-sheet-automation\`）。
+> 所有 Python 脚本位于该目录下的 `src/`，所有相对路径以此安装目录为基准。
 
 ## 触发词
 
