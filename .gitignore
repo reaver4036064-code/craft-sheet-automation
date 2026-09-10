@@ -50,5 +50,10 @@ node_modules/
 # Regression fixtures (contain real customer/supplier/contact data — never publish)
 tests/
 
+# Local agent work memory (internal session notes — never publish).
+# NOTE: only memory/ is ignored. .workbuddy/skills/ and .workbuddy/agents/ stay tracked
+# because they are project-level assets meant to be shared with the team.
+.workbuddy/memory/
+
 # Skill documentation (kept in IMA knowledge base, not in the public repo)
 SA设计版单自动化上传_SKILL说明_*.md
