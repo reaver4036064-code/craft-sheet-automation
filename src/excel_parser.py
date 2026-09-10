@@ -110,6 +110,13 @@ def parse_excel(excel_path):
         factory = to_str(ws.cell(r, 3).value)    # 制衣厂
         unit_price = to_str(ws.cell(r, 4).value)  # 单价
 
+        # 间隔行（A 列无 序号/分区标题）→ 重置 zone 并丢弃，避免该行内容被误归入上一分区
+        # 说明：V7 模板每行有意义内容（分区标题 ▼、表头「序号」、数据行序号 1-4）均在 A 列；
+        #       工艺区之间的间隔行（18/25/32）A 列为空，写入其中任意列都应视为无效。
+        if not label:
+            zone = None
+            continue
+
         if '工艺制作' in label:
             zone = 'make'; continue
         elif '车缝工艺' in label:
@@ -145,6 +152,9 @@ def parse_excel(excel_path):
             break
 
     for r in range(aux_start, aux_start + 30):
+        # 遇到下一分区标题（A 列含 ▼）即停止，避免越界收集后续分区内容
+        if '▼' in to_str(ws.cell(r, 1).value):
+            break
         name = to_str(ws.cell(r, aux_col.get("辅料名称", 2)).value)
         if not name:
             continue
