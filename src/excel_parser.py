@@ -126,18 +126,20 @@ def parse_excel(excel_path):
         factory = to_str(ws.cell(r, 3).value)    # 制衣厂
         unit_price = to_str(ws.cell(r, 4).value)  # 单价
 
-        # 间隔行（A 列无 序号/分区标题）→ 重置 zone 并丢弃，避免该行内容被误归入上一分区
-        # 说明：V7 模板每行有意义内容（分区标题 ▼、表头「序号」、数据行序号 1-4）均在 A 列；
-        #       工艺区之间的间隔行（18/25/32）A 列为空，写入其中任意列都应视为无效。
         if not label:
-            # A 列无序号/标题 → 该行不属于任何工艺编号行；若有内容则记警告（只报不改）
-            if name or factory or unit_price:
+            # A 列无序号/标题：若该行确实为空 → 视为分区间隔行，重置 zone；
+            # 若仍填了内容且当前分区有效 → 保留收集（不丢数据），但必须告警提示确认。
+            if zone and (name or factory or unit_price):
+                _zone_cn = {'make': '工艺制作', 'sew': '车缝工艺', 'garm': '成衣工艺'}.get(zone, zone)
                 row_warnings.append(
-                    f"第{r}行：A列(序号)为空但填写了内容（{name or factory or unit_price}），"
-                    f"该行不是有效工艺行，已忽略。请把工艺填到带序号的黄色行内。"
+                    f"第{r}行：A列(序号)为空但填写了「{name or factory or unit_price}」，"
+                    f"已按上一分区「{_zone_cn}」收集。请确认该行是否应填写——"
+                    f"若非有意，请移到带序号的黄色行内并删除本行内容。"
                 )
-            zone = None
-            continue
+                # 不重置 zone，继续走下面的收集逻辑
+            else:
+                zone = None
+                continue
 
         if '工艺制作' in label:
             zone = 'make'; continue
