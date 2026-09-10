@@ -30,20 +30,26 @@ def parse_excel(excel_path):
     sku_info = {}
 
     # Find SKU section start and build column map from header row
-    # FIXED: header scan widened from range(20, 30) to range(20, 50) — V7 模板「SKU编号」在第 34 行
+    # 全表扫描定位「SKU编号」表头行（V6 在第 20 行、V7 在第 34 行；插行后仍可定位）
     sku_header_row = 21
+    sku_header_found = False
     col_map = {}  # header_name -> col_index (1-based)
-    for r in range(20, 50):
+    for r in range(1, ws.max_row + 1):
         if to_str(ws.cell(r, 1).value) == "SKU编号":
             sku_header_row = r
+            sku_header_found = True
             # Scan header row to map column positions
             for c in range(1, 30):
                 h = to_str(ws.cell(r, c).value)
                 if h:
                     col_map[h] = c
             break
+    if not sku_header_found:
+        row_warnings.append(
+            "未找到「SKU编号」表头行，SKU/面料区可能解析为空，请检查模板是否被改动。"
+        )
 
-    for r in range(sku_header_row + 1, sku_header_row + 60):
+    for r in range(sku_header_row + 1, ws.max_row + 1):
         sku_raw = ws.cell(r, 1).value  # A col = SKU编号
         color = to_str(ws.cell(r, col_map.get("颜色", 2)).value)
         size = to_str(ws.cell(r, col_map.get("尺码", 3)).value)
@@ -54,7 +60,7 @@ def parse_excel(excel_path):
         cn = to_str(ws.cell(r, col_map.get("颜色名", 8)).value)
         # New v6 fields (cols 9-18; 是否使用库存 removed)
         is_rib = to_str(ws.cell(r, col_map.get("是否罗纹", 9)).value)
-        width = to_str(ws.cell(r, col_map.get("幅宽/CM", 10)).value or ws.cell(r, col_map.get("幅宽", 99)).value)
+        width = to_str(ws.cell(r, col_map.get("幅宽/CM", 10)).value or ws.cell(r, col_map.get("幅宽", 10)).value)
         weight = to_str(ws.cell(r, col_map.get("克重", 11)).value)
         supplier = to_str(ws.cell(r, col_map.get("供应商", 12)).value)
         component = to_str(ws.cell(r, col_map.get("成分", 13)).value)
@@ -105,7 +111,16 @@ def parse_excel(excel_path):
     works = []  # 所有工艺统一进works[]
 
     zone = None  # 'make' | 'sew' | 'garm'
-    for r in range(12, 35):
+
+    # 工艺区上界：动态定位 SKU 区起点（'▼ SKU 与面料' 或 'SKU编号'），避免硬编码 35 在插行后截断成衣工艺
+    process_end = ws.max_row + 1
+    for _r in range(12, ws.max_row + 1):
+        _a = to_str(ws.cell(_r, 1).value)
+        if _a == 'SKU编号' or ('▼' in _a and 'SKU' in _a):
+            process_end = _r
+            break
+
+    for r in range(12, process_end):
         label = to_str(ws.cell(r, 1).value)
         name = to_str(ws.cell(r, 2).value)
         factory = to_str(ws.cell(r, 3).value)    # 制衣厂
@@ -133,7 +148,11 @@ def parse_excel(excel_path):
         elif '▼' in label or 'SKU' in label or '面料' in label:
             zone = None; continue
 
-        if not zone or not name or name in ('工艺名称', '工艺内容', '工艺'):
+        if not zone or not name:
+            continue
+        # 表头行：A 列为「序号」，或 B 列为「工艺名称/工艺内容」的各种变体
+        # （严禁裸 '工艺' in name 包含匹配，以免误判「工艺处理」等正常工艺名）
+        if label == '序号' or '工艺名称' in name or '工艺内容' in name:
             continue
 
         cate = '0' if zone == 'make' else '1' if zone == 'sew' else '2'
@@ -145,20 +164,26 @@ def parse_excel(excel_path):
     # === Parse auxiliaries ===
     auxiliaries = []
     # Find "辅料名称" header row and build column map
-    # FIXED: header scan widened from range(30, 45) to range(30, 60) — V7 模板「辅料名称」在第 45 行
+    # 全表扫描定位「辅料名称」表头行（V6 在第 31 行、V7 在第 45 行；插行后仍可定位）
     aux_start = 32
+    aux_header_found = False
     aux_col = {}  # header -> col index
-    for r in range(30, 60):
+    for r in range(1, ws.max_row + 1):
         if to_str(ws.cell(r, 2).value) == "辅料名称":
             aux_start = r + 1
+            aux_header_found = True
             # Map columns from header row
             for c in range(1, 30):
                 h = to_str(ws.cell(r, c).value)
                 if h:
                     aux_col[h] = c
             break
+    if not aux_header_found:
+        row_warnings.append(
+            "未找到「辅料名称」表头行，辅料区可能解析为空，请检查模板是否被改动。"
+        )
 
-    for r in range(aux_start, aux_start + 30):
+    for r in range(aux_start, ws.max_row + 1):
         # 遇到下一分区标题（A 列含 ▼）即停止，避免越界收集后续分区内容
         if '▼' in to_str(ws.cell(r, 1).value):
             break
