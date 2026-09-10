@@ -123,30 +123,108 @@ def submit_one(excel_path, image_paths):
     return result
 
 
+# === 以下为命令行入口（跨平台：Windows / macOS / Linux 通用） ===
+
+_IMG_EXTS = ('.png', '.jpg', '.jpeg')
+
+
+def _find_excel(folder):
+    """在文件夹中找表格：排除 Excel 锁文件(~$开头)，优先含「工艺」「表单」的。"""
+    xls = sorted(p for p in folder.iterdir()
+                 if p.is_file()
+                 and p.suffix.lower() == '.xlsx'
+                 and not p.name.startswith('~$'))
+    if not xls:
+        return None
+    for p in xls:
+        if '工艺' in p.name or '表单' in p.name:
+            return p
+    return xls[0]
+
+
+def _collect_images(folder):
+    """收集文件夹内图片，按文件名排序（A/B/C1/C2...）。后缀大小写不敏感。"""
+    return sorted(p for p in folder.iterdir()
+                  if p.is_file() and p.suffix.lower() in _IMG_EXTS)
+
+
+def _expand(targets):
+    """若某文件夹自身没有表格、但子文件夹有，则视为批量父目录展开。"""
+    out = []
+    for t in targets:
+        if _find_excel(t):
+            out.append(t)
+        else:
+            subs = [c for c in sorted(t.iterdir())
+                    if c.is_dir() and _find_excel(c)] if t.is_dir() else []
+            out.extend(subs if subs else [t])
+    return out
+
+
+def _usage():
+    print("用法: python3 submit_excel.py <设计单文件夹> [更多文件夹...]")
+    print("")
+    print("  每个文件夹需包含: 1 个 .xlsx 表格  +  若干 .png/.jpg 图片 (A/B/C1/C2...)")
+    print("  若传入的是父目录(自身无表格、子目录有)，会自动逐个子目录处理。")
+    print("")
+    print("示例:")
+    print("  python3 submit_excel.py ./我的设计单")
+    print("  python3 submit_excel.py ./单1 ./单2")
+    print("")
+    print("提示: Windows 下命令也可写作 python；macOS/Linux 请用 python3。")
+
+
 if __name__ == "__main__":
     import sys
-    TEST_DIR = Path(r"C:\Users\Administrator\Desktop\测试")
+
+    if len(sys.argv) < 2:
+        _usage()
+        sys.exit(1)
+
+    targets = [Path(a) for a in sys.argv[1:]]
+    bad = [p for p in targets if not p.is_dir()]
+    if bad:
+        for p in bad:
+            print(f"[ERROR] 不是有效文件夹: {p}")
+        sys.exit(1)
+
+    jobs = _expand(targets)
     results = []
 
-    for child in sorted(TEST_DIR.iterdir()):
-        if not child.is_dir():
-            continue
-        xls = list(child.glob("*.xlsx"))
-        imgs = list(child.glob("*.png")) + list(child.glob("*.jpg"))
+    for i, folder in enumerate(jobs, 1):
+        xls = _find_excel(folder)
+        imgs = _collect_images(folder)
+        print(f"\n{'='*60}")
+        print(f"[{i}/{len(jobs)}] {folder}")
+
         if not xls or not imgs:
+            missing = "、".join(
+                [t for t in ("缺少Excel表格" if not xls else "",
+                             "缺少图片" if not imgs else "") if t]
+            )
+            print(f"[SKIP] {missing}")
+            results.append({"folder": str(folder), "success": False, "error": missing})
             continue
 
-        print(f"\n{'='*60}")
-        print(f"Processing: {child.name}")
         try:
-            r = submit_one(xls[0], imgs)
-            results.append({"folder": child.name, "success": r.get("success", False), "result": r})
+            r = submit_one(xls, imgs)
+            results.append({"folder": str(folder), "success": r.get("success", False), "result": r})
         except Exception as e:
             print(f"[ERROR] {e}")
             import traceback
             traceback.print_exc()
-            results.append({"folder": child.name, "success": False, "error": str(e)})
-        time.sleep(2)
+            results.append({"folder": str(folder), "success": False, "error": str(e)})
+
+    ok = sum(1 for r in results if r.get("success"))
+    print(f"\n{'='*60}")
+    print(f"全部完成: 成功 {ok} / 共 {len(results)}")
+
+    if ok < len(results):
+        print("\n未成功的项:")
+        for r in results:
+            if not r.get("success"):
+                print(f"  - {r['folder']}: {r.get('error', '提交失败')}")
+        sys.exit(2)
 
     print(f"\n{'='*60}")
     for r in results:

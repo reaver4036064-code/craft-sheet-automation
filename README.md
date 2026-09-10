@@ -53,17 +53,39 @@
 
 1. 加载 Skill 后自动引导填写姓名和嘉谦系统账号密码
 2. 身份验证通过后保存，后续无需重复填写
-3. 如需更换设计师，删除工作目录下的 `.identity.json` 重新运行 可交由WB自动执行
+3. 如需更换设计师，删除安装目录下的 `src/.identity.json` 重新运行（可交由 WorkBuddy 自动执行）
+
+## 运行方式（跨平台）
+
+在 Skill 安装目录下（`<用户主目录>/.workbuddy/skills/craft-sheet-automation/`）：
+
+```
+python3 src/submit_excel.py <设计单文件夹> [更多文件夹...]
+```
+
+| 平台 | 写法 |
+|------|------|
+| Windows | `python src/submit_excel.py ...` |
+| macOS / Linux | `python3 src/submit_excel.py ...` |
+
+- 文件夹需含 1 个 `.xlsx` + 若干 `.png/.jpg`（A/B/C1/C2…）
+- 传父目录（自身无表格、子目录有）会自动逐个处理
+- 无参数运行只打印用法，不做提交
+- 退出码：`0` 全成功 / `1` 参数错误 / `2` 有项未成功
 
 ## 开发者指南
 
 ### 本地测试
 
 ```bash
-cd src
-python submit_excel.py        # 批量处理，扫描文件夹自动提交
-python -c "from submit_excel import submit_one; ..."   # 单文件夹测试
+cd <Skill 安装目录>
+python3 src/submit_excel.py ./某设计单文件夹      # 单个
+python3 src/submit_excel.py ./单1 ./单2          # 多个
+python3 src/submit_excel.py ./父目录             # 自动展开子目录
+python3 -c "from submit_excel import submit_one; ..."   # 直接调函数
 ```
+
+> Windows 上把 `python3` 换成 `python`。
 
 ### 环境变量（可选，优先使用交互式身份流程）
 

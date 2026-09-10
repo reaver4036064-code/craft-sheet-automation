@@ -8,8 +8,33 @@ agent_created: true
 # TB-SA设计版单自动化上传 Skill
 
 > **仓库**：https://github.com/reaver4036064-code/craft-sheet-automation
-> **Skill 安装目录**：本 `SKILL.md` 所在目录（Windows 默认 `C:\Users\<用户>\.workbuddy\skills\craft-sheet-automation\`）。
+> **Skill 安装目录**：本 `SKILL.md` 所在目录。所有平台均为 `<用户主目录>/.workbuddy/skills/craft-sheet-automation/`
+> —— Windows：`C:\Users\<用户名>\.workbuddy\skills\craft-sheet-automation\`
+> —— macOS / Linux：`~/.workbuddy/skills/craft-sheet-automation/`
 > 所有 Python 脚本位于该目录下的 `src/`，所有相对路径以此安装目录为基准。
+
+## 运行方式（跨平台）
+
+入口脚本 `src/submit_excel.py`，参数为**设计单文件夹路径**：
+
+```
+python3 src/submit_excel.py <设计单文件夹> [更多文件夹...]
+```
+
+| 平台 | 解释器写法 |
+|------|-----------|
+| Windows | `python src/submit_excel.py ...`（`python3` 通常也可用） |
+| macOS / Linux | `python3 src/submit_excel.py ...` |
+
+- 每个文件夹需含 **1 个 `.xlsx` 表格 + 若干 `.png/.jpg` 图片**（A/B/C1/C2…）。
+- 传入父目录（自身无表格、子目录有）会自动逐个子目录处理。
+- 无参数运行会打印用法并以非 0 退出，**不会**做任何提交。
+- 依赖：Python 3.10+、`openpyxl`、`requests`。缺依赖时先安装再运行。
+- 退出码：`0` 全部成功 / `1` 参数或路径错误 / `2` 有项未成功。
+
+> 若在本机首次运行且缺少 `src/.identity.json`，脚本会尝试交互式询问身份；
+> 但 Agent 场景下**应改用 Agent 自己的问答收集后直接写入 `.identity.json`**（见「首次使用」章节），
+> 避免非交互环境下的 `input()` 失败。
 
 ## 触发词
 
